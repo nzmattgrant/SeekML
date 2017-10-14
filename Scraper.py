@@ -1,5 +1,7 @@
 import requests
-from bs4 import BeautifulSoup
+import csv
+from selenium import webdriver
+from bs4 import BeautifulSoup,NavigableString,Comment
 
 site_root = "https://www.seek.co.nz"
 
@@ -7,7 +9,7 @@ current_page = ""
 next_page = site_root + "/jobs-in-information-communication-technology"
 job_links = []
 current_page_number = 0
-while current_page != next_page:
+while current_page != next_page and len(job_links) <= 100:
     current_page = next_page
     current_page_number = current_page_number + 1
     current_request = requests.get(current_page)
@@ -23,3 +25,17 @@ while current_page != next_page:
     print("current page: " + current_page)
     print("next page: " + next_page)
 print(job_links)
+with open("first100.csv", "w+") as csvfile:
+    fieldnames = ['description']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    for link in job_links[0:5]:
+        driver = webdriver.Chrome("C:\Program Files\ChromeDriver\chromedriver.exe")
+        driver.get(site_root + link)
+        page_soup = BeautifulSoup(driver.page_source, "html.parser")
+        description = page_soup.find("div", attrs={"data-automation": "jobDescription"})
+        if description is not None:
+            description_text = ""
+            for child in [c for c in BeautifulSoup(description.text, "lxml").recursiveChildGenerator() if type(c) == NavigableString and type(c) != Comment]:
+                description_text = description_text + "; " + child
+            writer.writerow({"description": description_text})
