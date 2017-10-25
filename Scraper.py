@@ -26,7 +26,7 @@ while current_page != next_page and len(job_links) <= 100:
     print("current page: " + current_page)
     print("next page: " + next_page)
 print(job_links)
-with open("first100.csv", "w+") as csvfile:
+with open("first100.csv", "w+", encoding='utf-8') as csvfile:
     fieldnames = ['title', 'description', 'advertiser-name', 'date', 'work-type']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
