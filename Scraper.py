@@ -4,6 +4,8 @@ from selenium import webdriver
 from bs4 import BeautifulSoup,NavigableString,Comment
 from html.parser import HTMLParser
 from rake_nltk import Rake
+import string
+printable = set(string.printable)
 
 site_root = "https://www.seek.co.nz"
 r = Rake()
@@ -40,7 +42,7 @@ with open("first10WithKeyWords.csv", "w+", encoding='utf-8') as csvfile:
         title = page_soup.find(attrs={"data-automation": "job-detail-title"})
         if title is not None:
             row_object.update({"title": title.text})
-        description = page_soup.find("div", attrs={"data-automation": "jobDescription"})
+        description = page_soup.find("div", attrs={"data-automation": "jobDescription"}).find("div", attrs={"class": "templatetext"})
 
         if description is not None:
             description_text = ""
@@ -49,10 +51,16 @@ with open("first10WithKeyWords.csv", "w+", encoding='utf-8') as csvfile:
                     continue
                 print("child = " + child)
                 description_text = description_text + " " + child.strip()
+            filter(lambda x: x in printable, description_text)
             row_object.update({"description": description_text})
             r.extract_keywords_from_text(description_text)
             keywords = r.get_ranked_phrases()
-            row_object.update({"keywords": keywords})
+            filtered_keywords = []
+            for keyword in [item for item in keywords if len(item.split()) < 4]:
+                filtered_keywords.append(keyword)
+            keyword_text = ', '.join(filtered_keywords)
+            filter(lambda x: x in printable, keyword_text)
+            row_object.update({"keywords": keyword_text})
 
         advertiser_name = page_soup.find(attrs={"data-automation": "job-details-header-advertiser-name"})
         if advertiser_name is not None:
