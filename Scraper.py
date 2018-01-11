@@ -12,7 +12,7 @@ current_page = ""
 next_page = site_root + "/jobs-in-information-communication-technology"
 job_links = []
 current_page_number = 0
-while current_page != next_page and len(job_links) <= 10:
+while current_page != next_page: #and len(job_links) <= 10
     current_page = next_page
     current_page_number = current_page_number + 1
     current_request = requests.get(current_page)
@@ -32,7 +32,7 @@ with open("first10WithKeyWords.csv", "w+", encoding='utf-8') as csvfile:
     fieldnames = ['title', 'description', 'advertiser-name', 'date', 'work-type', "keywords"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
-    for link in job_links[0:5]:
+    for link in job_links:
         driver = webdriver.Chrome("chromedriver.exe")
         driver.get(site_root + link)
         page_soup = BeautifulSoup(driver.page_source, "html.parser")
