@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.metrics.pairwise import linear_kernel
 import csv
 from textblob import TextBlob as tb
+import Utils
 
 
 #with the cosine similarity we want to put the document we are comparing to through the tf-idf algorithm to find the importance of the words
@@ -13,26 +14,12 @@ from textblob import TextBlob as tb
 #step 2 find the keywords using the tf-idf implementation and the documents we already have
 #step 3 apply the cosine similarity to all the documents and this one and see if they match up
 
-def get_corpus_from_descriptions(text_to_compare = ""):
-    fields = ['title', 'description', 'advertiser-name', 'date', 'work-type', "keywords", "important-keywords"]
-    with open('Large data set.csv', 'r', encoding='utf-8') as csvinput:
-        reader = csv.DictReader(csvinput, fieldnames=fields)
-
-        corpus = []
-
-        for row in reader:
-            corpus.append({"description": str(row["description"]).lower(), "title": str(row["title"])})
-
-        if text_to_compare is not "":
-            corpus.append({"description": text_to_compare, "title": "self"})
-
-        return corpus
 
 def gensim_document_similarity():
     pass
 
 def scikitlearn_document_similarity():
-    corpus = get_corpus_from_descriptions()
+    corpus = Utils.get_corpus_from_descriptions()
     vectorizer = CountVectorizer()
     features = vectorizer.fit_transform(corpus).todense()
 
@@ -49,7 +36,7 @@ def custom_cosine_similarity():
     pass
 
 def scikitlearn_document_similarity_using_TfidfVectorizer(text_to_compare):
-    corpus_dict = get_corpus_from_descriptions(text_to_compare)
+    corpus_dict = Utils.get_corpus_from_descriptions(text_to_compare)
     corpus = [d['description'] for d in corpus_dict]
     tfidf = TfidfVectorizer().fit_transform(corpus)
     cosine_similarities = linear_kernel(tfidf[0:1], tfidf).flatten()
